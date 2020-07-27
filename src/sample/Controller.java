@@ -1,13 +1,11 @@
 package sample;
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -18,14 +16,23 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+import javax.swing.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
     private double orgSceneX, orgSceneY;
     private double orgTranslateX, orgTranslateY;
+    private double offsetX, offsetY;
+    private double currentX, currentY;
+    private double newTranslateX, newTranslateY;
+
+    private int chosenPointIndex;
+    private int currentPointId = 0;
 
     @FXML
     private ImageView imageView00, imageView10, imageView01, imageView11;
@@ -37,6 +44,27 @@ public class Controller implements Initializable {
     private ListView<VBox> pointsList;
 
     private TextField textField, textField2;
+
+    private Button test;
+
+    private ArrayList<ArrayList<Node>> test2;
+
+    private ArrayList<Double> cordX, cordY;
+
+    private ArrayList<Node> points, points2, testPoints;
+
+    private ArrayList<TextField> xCordsTextFields, yCordsTextFields;
+
+    private int pointIds = 0;
+
+    private int clickedPointId;
+
+    private ArrayList<ArrayList> clickedPointList2;
+    private ArrayList<Node> clickedPointList;
+
+    private ArrayList<Double> startX, startY;
+
+    double tempCurrentX, tempCurrentY;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -79,87 +107,199 @@ public class Controller implements Initializable {
                 makePoint(event.getX(), event.getY());
             }
         });
+
+        cordX = new ArrayList<>();
+        cordY = new ArrayList<>();
+        points = new ArrayList<>();
+        test2 = new ArrayList<>();
+        xCordsTextFields = new ArrayList<>();
+        yCordsTextFields = new ArrayList<>();
+        testPoints = new ArrayList<>();
+        clickedPointList = new ArrayList<>();
+        clickedPointList2 = new ArrayList<>();
+        startX = new ArrayList<>();
+        startY = new ArrayList<>();
     }
 
     public void makePoint(double mouseX, double mouseY){
-        Node point = new Circle(mouseX + 125, mouseY + 60, 10, Color.RED);
-        Node point2 = new Circle(mouseX + 125, mouseY + 60, 10, Color.RED);
-        Node point3 = new Circle(mouseX + 125, mouseY + 60, 10, Color.RED);
-        Node point4 = new Circle(mouseX + 125, mouseY + 60, 10, Color.RED);
+        Color generatedColor = generateColor();
+        System.out.println("COLOR: " + generatedColor);
 
-        ArrayList<Node> points = new ArrayList<>();
+        Node point = new Circle(mouseX + 125, mouseY + 60, 10, generatedColor);
+        Node point2 = new Circle(mouseX + 125, mouseY + 60, 10, generatedColor);
+        Node point3 = new Circle(mouseX + 125, mouseY + 60, 10, generatedColor);
+        Node point4 = new Circle(mouseX + 125, mouseY + 60, 10, generatedColor);
+
+        point.setId(String.valueOf(pointIds));
+        point2.setId(String.valueOf(pointIds));
+        point3.setId(String.valueOf(pointIds));
+        point4.setId(String.valueOf(pointIds));
+
+        points2 = new ArrayList<>();
+
         points.add(point);
         points.add(point2);
         points.add(point3);
         points.add(point4);
+
+        points2.add(point);
+        points2.add(point2);
+        points2.add(point3);
+        points2.add(point4);
+
+        for(Node tmp : points2){
+            System.out.println(tmp);
+        }
+        test2.add(points2);
+
+        cordX.add(mouseX);
+        cordY.add(mouseY);
 
         anchorGrid00.getChildren().add(point);
         anchorGrid10.getChildren().add(point2);
         anchorGrid01.getChildren().add(point3);
         anchorGrid11.getChildren().add(point4);
 
+        currentX = mouseX;
+        currentY = mouseY;
+
+        startX.add(currentX);
+        startY.add(currentY);
+
         Label title = new Label("Point");
         Label label = new Label("x =");
-        textField = new TextField(String.valueOf(mouseX));
+        textField = new TextField(String.valueOf(mouseX).split("\\.")[0]);
         textField.setPrefWidth(60);
-        textField.setEditable(false);
+        textField.setId(String.valueOf(pointIds));
+        xCordsTextFields.add(textField);
         Label label2 = new Label("y =");
-        textField2 = new TextField(String.valueOf(mouseY));
+        textField2 = new TextField(String.valueOf(mouseY).split("\\.")[0]);
         textField2.setPrefWidth(60);
-        textField2.setEditable(false);
+        textField2.setId(String.valueOf(pointIds));
+        yCordsTextFields.add(textField2);
+        test = new Button("Test");
         VBox vb = new VBox();
         HBox hb = new HBox();
         hb.getChildren().addAll(label, textField, label2, textField2);
         hb.setSpacing(10);
-        vb.getChildren().addAll(title, hb);
+        vb.getChildren().addAll(title, hb, test);
         vb.setSpacing(6);
         pointsList.getItems().add(vb);
+
+        pointIds++;
+        currentPointId += 1;
         System.out.println(pointsList.getSelectionModel().getSelectedIndex());
+
+        textField.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("XTEXT" + textField.getText());
+                System.out.println(((TextField)(event.getSource())).getId());
+            }
+        });
+
+        test.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                System.out.println("chosen: " + chosenPointIndex);
+
+                ArrayList<Node> currentPoint = test2.get(chosenPointIndex);
+
+                double tmpX = cordX.get(chosenPointIndex);
+                double tmpY = cordY.get(chosenPointIndex);
+
+                System.out.println("DUPA: " + xCordsTextFields.get(chosenPointIndex).getText());
+                System.out.println("DUPA: " + yCordsTextFields.get(chosenPointIndex).getText());
+
+                for(Node current : currentPoint){
+                    current.setTranslateX(Double.parseDouble(xCordsTextFields.get(chosenPointIndex).getText()) - tmpX);
+                    current.setTranslateY(Double.parseDouble(yCordsTextFields.get(chosenPointIndex).getText()) - tmpY);
+                }
+
+            }
+        });
 
         for(Node tmp : points){
             tmp.setOnMousePressed(event -> circleOnMousePressedEventHandler(event));
             tmp.setOnMouseDragged(event -> drag(event));
+            tmp.setOnMouseReleased(event -> dragReleased(event));
         }
-
-//        point.setOnMousePressed(event -> circleOnMousePressedEventHandler(event));
-//        point.setOnMouseDragged(event -> drag(event));
-//        point2.setOnMousePressed(event -> circleOnMousePressedEventHandler(event));
-//        point2.setOnMouseDragged(event -> drag(event));
-//        point3.setOnMousePressed(event -> circleOnMousePressedEventHandler(event));
-//        point3.setOnMouseDragged(event -> drag(event));
-//        point4.setOnMousePressed(event -> circleOnMousePressedEventHandler(event));
-//        point4.setOnMouseDragged(event -> drag(event));
-
-
-    }
-    public void drag(MouseEvent t) {
-//        Node n = (Node)event.getSource();
-//        System.out.println("X after: " + (event.getX() - 125) + "Y after: " + (event.getY() - 60));
-//        n.setTranslateX(event.getX() - 125);
-//        n.setTranslateY(event.getY() - 60);
-////        n.set
-////        n.setTranslateY(n.getTranslateY()+ event.getY() - 60);
-//        System.out.println(event.getX() - 125);
-        double offsetX = t.getSceneX() - orgSceneX;
-        double offsetY = t.getSceneY() - orgSceneY;
-        double newTranslateX = orgTranslateX + offsetX;
-        double newTranslateY = orgTranslateY + offsetY;
-
-        ((Circle)(t.getSource())).setTranslateX(newTranslateX);
-        ((Circle)(t.getSource())).setTranslateY(newTranslateY);
     }
 
-    public void circleOnMousePressedEventHandler(MouseEvent t){
-        orgSceneX = t.getSceneX();
-        orgSceneY = t.getSceneY();
-        orgTranslateX = ((Circle)(t.getSource())).getTranslateX();
-        orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
+    public void drag(MouseEvent event) {
+        offsetX = event.getSceneX() - orgSceneX;
+        offsetY = event.getSceneY() - orgSceneY;
+
+        newTranslateX = orgTranslateX + offsetX;
+        newTranslateY = orgTranslateY + offsetY;
+
+//        ((Circle)(event.getSource())).setTranslateX(newTranslateX);
+//        ((Circle)(event.getSource())).setTranslateY(newTranslateY);
+
+        for(Node tmp : clickedPointList){
+            tmp.setTranslateX(newTranslateX);
+            tmp.setTranslateY(newTranslateY);
+        }
+    }
+
+    public void dragReleased(MouseEvent event){
+        offsetX = event.getSceneX() - orgSceneX;
+        offsetY = event.getSceneY() - orgSceneY;
+
+        TextField tempX = xCordsTextFields.get(currentPointId);
+        TextField tempY = yCordsTextFields.get(currentPointId);
+
+        double obecneX = startX.get(currentPointId);
+        double obecneY = startY.get(currentPointId);
+
+        tempX.setText(String.valueOf((obecneX + newTranslateX)).split("\\.")[0]);
+        tempY.setText(String.valueOf((obecneY + newTranslateY)).split("\\.")[0]);
+
+        clickedPointList.clear();
+    }
+
+    public void circleOnMousePressedEventHandler(MouseEvent event){
+        orgSceneX = event.getSceneX();
+        orgSceneY = event.getSceneY();
+
+        currentPointId = Integer.parseInt(((Circle)(event.getSource())).getId());
+
+        TextField tempX = xCordsTextFields.get(currentPointId);
+        TextField tempY = yCordsTextFields.get(currentPointId);
+
+        tempCurrentX = Double.parseDouble(tempX.getText());
+        tempCurrentY = Double.parseDouble(tempY.getText());
+
+        clickedPointList.addAll(test2.get(currentPointId));
+
+        orgTranslateX = clickedPointList.get(0).getTranslateX();
+        orgTranslateY = clickedPointList.get(0).getTranslateY();
+
+        System.out.println("ID PUNKTU: " + ((Circle)(event.getSource())).getId());
+
     }
 
 
     public void handleMouseClick(MouseEvent event) {
-        System.out.println("clicked on " + pointsList.getSelectionModel().getSelectedItem());
-        pointsList.getSelectionModel().getSelectedIndex();
+        chosenPointIndex = pointsList.getSelectionModel().getSelectedIndex();
+        System.out.println(pointsList.getSelectionModel().getSelectedIndex());
+        for(Double temp : cordX){
+            System.out.println(temp);
+        }
+    }
 
+    public Color generateColor(){
+        Random rand = new Random();
+
+        double r = rand.nextDouble();
+        double g = rand.nextDouble();
+        double b = rand.nextDouble();
+
+        Color generatedColor = new Color(r, g, b, 1);
+
+        generatedColor.brighter();
+
+        return generatedColor;
     }
 }
