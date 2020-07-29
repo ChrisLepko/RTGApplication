@@ -15,17 +15,16 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
-
 import java.net.URL;
 import java.util.*;
 
 public class Controller implements Initializable {
 
-    private double anchorTopImageMargin = 60;
-    private double anchorLeftImageMargin = 125;
-    private int pointRadius = 7;
     private int imageWidth = 250;
     private int imageHeight = 220;
+    private int pointRadius = 7;
+    private double anchorTopImageMargin = 60;
+    private double anchorLeftImageMargin = 125;
 
     private double orgSceneX, orgSceneY, orgTranslateX, orgTranslateY, offsetX, offsetY, newTranslateX, newTranslateY;
     private double currentStartX, currentStartY;
@@ -49,7 +48,7 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Image img = new Image("images/testrtg.jpg");
+        Image img = new Image("images/rtgimage.jpg");
 
         images = new ArrayList<>();
         images.add(imageView00);
@@ -175,6 +174,7 @@ public class Controller implements Initializable {
             });
             validateInputs(focusedTextField, imageWidth);
         });
+
 
         yCoordTextField.setOnMouseClicked(event -> {
             focusedTextFieldId = Integer.parseInt(((TextField)(event.getSource())).getId());
@@ -323,4 +323,5 @@ public class Controller implements Initializable {
 
         return generatedColor;
     }
+
 }
