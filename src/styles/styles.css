@@ -3,7 +3,15 @@ Button {
     -fx-text-fill: white;
 }
 
+Circle {
+    -fx-stroke: black;
+}
+
 GridPane {
+    -fx-background-color: black;
+}
+
+AnchorPane {
     -fx-background-color: black;
 }
 
@@ -15,10 +23,6 @@ TextField {
     -fx-background-color: #282828;
 }
 
-Circle {
-    -fx-stroke: black;
-}
-
 ListView {
     -fx-background-color: black;
 }
@@ -27,22 +31,12 @@ ListView .scroll-bar:vertical{
     -fx-background-color: black;
 }
 
-AnchorPane {
+ListView .list-cell{
     -fx-background-color: black;
-}
-
-.list-view .list-cell{
-    -fx-background-color: black;
-}
-
-.list-view .list-cell{
     -fx-control-inner-background: black ;
     -fx-control-inner-background-alt: derive(-fx-control-inner-background, 50%);
 }
 
-.split-pane *.split-pane-divider {
+SplitPane *.split-pane-divider {
     -fx-padding: 0 0 0 0;
 }
-
-
-

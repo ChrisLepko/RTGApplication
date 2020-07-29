@@ -22,18 +22,18 @@ public class Controller implements Initializable {
 
     private int imageWidth = 250;
     private int imageHeight = 220;
-    private int pointRadius = 7;
     private double anchorTopImageMargin = 60;
     private double anchorLeftImageMargin = 125;
+    private int pointRadius = 7;
 
-    private double orgSceneX, orgSceneY, orgTranslateX, orgTranslateY, offsetX, offsetY, newTranslateX, newTranslateY;
-    private double currentStartX, currentStartY;
+    private double orgSceneX, orgSceneY, orgTranslateX, orgTranslateY;
+    private double clickedPointStartX, clickedPointStartY;
 
     private int clickedPointId, focusedTextFieldId;
     private int pointIds = 0;
 
     private ArrayList<ArrayList<Node>> allPoints;
-    private ArrayList<Node> currentPoints, clickedPointList;
+    private ArrayList<Node> clickedPointList;
     private ArrayList<TextField> xCordsTextFields, yCordsTextFields;
     private ArrayList<ImageView> images;
     private ArrayList<AnchorPane> mainPanes;
@@ -71,9 +71,7 @@ public class Controller implements Initializable {
             AnchorPane.setTopAnchor(image, anchorTopImageMargin);
             AnchorPane.setLeftAnchor(image, anchorLeftImageMargin);
 
-            image.setOnMouseClicked(event -> {
-                makePoint(event.getX(), event.getY());
-            });
+            image.setOnMouseClicked(event -> makePoint(event.getX(), event.getY()));
         }
 
         allPoints = new ArrayList<>();
@@ -87,7 +85,7 @@ public class Controller implements Initializable {
     private void makePoint(double mouseX, double mouseY){
         Color generatedColor = generateColor();
 
-        currentPoints = new ArrayList<>();
+        ArrayList<Node> currentPoints = new ArrayList<>();
 
         for(int i = 0; i < 4; i++){
             Node point = new Circle(mouseX + anchorLeftImageMargin, mouseY + anchorTopImageMargin, pointRadius, generatedColor);
@@ -169,7 +167,7 @@ public class Controller implements Initializable {
                         else{
                             current.setTranslateX(Double.parseDouble(xCordsTextFields.get(focusedTextFieldId).getText()) - tmpX);
                         }
-                    } catch (NumberFormatException ex){}
+                    } catch (NumberFormatException ignored){}
                 }
             });
             validateInputs(focusedTextField, imageWidth);
@@ -198,7 +196,7 @@ public class Controller implements Initializable {
                         else{
                             current.setTranslateY(Double.parseDouble(yCordsTextFields.get(focusedTextFieldId).getText()) - tmpY);
                         }
-                    } catch (NumberFormatException ex){}
+                    } catch (NumberFormatException ignored){}
                 }
             });
             validateInputs(focusedTextField, imageHeight);
@@ -214,9 +212,9 @@ public class Controller implements Initializable {
         });
 
         for(Node tmp : currentPoints){
-            tmp.setOnMousePressed(event -> pointOnMousePressed(event));
-            tmp.setOnMouseDragged(event -> dragPoint(event));
-            tmp.setOnMouseReleased(event -> dragPointReleased(event));
+            tmp.setOnMousePressed(this::pointOnMousePressed);
+            tmp.setOnMouseDragged(this::dragPoint);
+            tmp.setOnMouseReleased(this::dragPointReleased);
         }
     }
 
@@ -245,29 +243,29 @@ public class Controller implements Initializable {
 
         clickedPointList.addAll(allPoints.get(clickedPointId));
 
-        currentStartX = startXCoords.get(clickedPointId);
-        currentStartY = startYCoords.get(clickedPointId);
+        clickedPointStartX = startXCoords.get(clickedPointId);
+        clickedPointStartY = startYCoords.get(clickedPointId);
 
         orgTranslateX = clickedPointList.get(0).getTranslateX();
         orgTranslateY = clickedPointList.get(0).getTranslateY();
     }
 
     private void dragPoint(MouseEvent event) {
-        offsetX = event.getSceneX() - orgSceneX;
-        offsetY = event.getSceneY() - orgSceneY;
+        double offsetX = event.getSceneX() - orgSceneX;
+        double offsetY = event.getSceneY() - orgSceneY;
 
-        newTranslateX = orgTranslateX + offsetX;
-        newTranslateY = orgTranslateY + offsetY;
+        double newTranslateX = orgTranslateX + offsetX;
+        double newTranslateY = orgTranslateY + offsetY;
 
-        if(currentStartX + newTranslateX > imageWidth)
-            newTranslateX = imageWidth - currentStartX;
-        if(currentStartX + newTranslateX < 0)
-            newTranslateX = -currentStartX;
+        if(clickedPointStartX + newTranslateX > imageWidth)
+            newTranslateX = imageWidth - clickedPointStartX;
+        if(clickedPointStartX + newTranslateX < 0)
+            newTranslateX = -clickedPointStartX;
 
-        if(currentStartY + newTranslateY > imageHeight)
-            newTranslateY = imageHeight - currentStartY;
-        if(currentStartY + newTranslateY < 0)
-            newTranslateY = -currentStartY;
+        if(clickedPointStartY + newTranslateY > imageHeight)
+            newTranslateY = imageHeight - clickedPointStartY;
+        if(clickedPointStartY + newTranslateY < 0)
+            newTranslateY = -clickedPointStartY;
 
         for(Node tmp : clickedPointList){
             tmp.setTranslateX(newTranslateX);
@@ -319,9 +317,6 @@ public class Controller implements Initializable {
 
         Color generatedColor = new Color(r, g, b, 1);
 
-        generatedColor.brighter();
-
         return generatedColor;
     }
-
 }
