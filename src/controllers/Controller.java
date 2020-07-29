@@ -1,4 +1,4 @@
-package sample;
+package controllers;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -30,11 +30,8 @@ public class Controller implements Initializable {
     private double orgSceneX, orgSceneY, orgTranslateX, orgTranslateY, offsetX, offsetY, newTranslateX, newTranslateY;
     private double currentStartX, currentStartY;
 
-    private int currentPointId, xTextFieldId, yTextFieldId;
+    private int clickedPointId, focusedTextFieldId;
     private int pointIds = 0;
-
-    private TextField textField, textField2;
-    private Button deletePointButton;
 
     private ArrayList<ArrayList<Node>> allPoints;
     private ArrayList<Node> currentPoints, clickedPointList;
@@ -76,7 +73,6 @@ public class Controller implements Initializable {
             AnchorPane.setLeftAnchor(image, anchorLeftImageMargin);
 
             image.setOnMouseClicked(event -> {
-                System.out.println("X: " + event.getX() + "Y: " + event.getY());
                 makePoint(event.getX(), event.getY());
             });
         }
@@ -115,47 +111,50 @@ public class Controller implements Initializable {
         title.setFont(Font.font("Verdana", 17));
         title.setPadding(new Insets(5,0,0, 5));
 
-        Label label = new Label("x =");
+        Label xLabel = new Label("x =");
 
-        textField = new TextField(String.valueOf(mouseX).split("\\.")[0]);
-        textField.setPrefWidth(60);
-        textField.setId(String.valueOf(pointIds));
-        xCordsTextFields.add(textField);
+        TextField xCoordTextField = new TextField(String.valueOf(mouseX).split("\\.")[0]);
+        xCoordTextField.setPrefWidth(60);
+        xCoordTextField.setId(String.valueOf(pointIds));
+        xCordsTextFields.add(xCoordTextField);
 
-        Label label2 = new Label("y =");
+        Label yLabel = new Label("y =");
 
-        textField2 = new TextField(String.valueOf(mouseY).split("\\.")[0]);
-        textField2.setPrefWidth(60);
-        textField2.setId(String.valueOf(pointIds));
-        yCordsTextFields.add(textField2);
+        TextField yCoordTextField = new TextField(String.valueOf(mouseY).split("\\.")[0]);
+        yCoordTextField.setPrefWidth(60);
+        yCoordTextField.setId(String.valueOf(pointIds));
+        yCordsTextFields.add(yCoordTextField);
 
-        deletePointButton = new Button("Delete");
+        Button deletePointButton = new Button("Delete");
         deletePointButton.setId(String.valueOf(pointIds));
 
-        VBox vb = new VBox();
-        HBox hb = new HBox();
+        VBox vbPoints = new VBox();
+        HBox hbInputs = new HBox();
         HBox hbButtons = new HBox();
-        hb.getChildren().addAll(label, textField, label2, textField2);
-        hb.setSpacing(5);
-        hb.setAlignment(Pos.CENTER);
+
+        hbInputs.getChildren().addAll(xLabel, xCoordTextField, yLabel, yCoordTextField);
+        hbInputs.setSpacing(5);
+        hbInputs.setAlignment(Pos.CENTER);
+
         hbButtons.getChildren().addAll(deletePointButton);
         hbButtons.setSpacing(10);
         hbButtons.setAlignment(Pos.BOTTOM_RIGHT);
-        hbButtons.setPadding(new Insets(0, 15, 5, 0 ));
-        vb.getChildren().addAll(title, hb, hbButtons);
-        vb.setSpacing(6);
-        pointsListView.getItems().add(vb);
+        hbButtons.setPadding(new Insets(0, 10, 5, 0 ));
+
+        vbPoints.getChildren().addAll(title, hbInputs, hbButtons);
+        vbPoints.setSpacing(6);
+        pointsListView.getItems().add(vbPoints);
 
         pointIds++;
 
-        textField.setOnMouseClicked(event -> {
-            xTextFieldId = Integer.parseInt(((TextField)(event.getSource())).getId());
+        xCoordTextField.setOnMouseClicked(event -> {
+            focusedTextFieldId = Integer.parseInt(((TextField)(event.getSource())).getId());
 
-            TextField focusedTextField = xCordsTextFields.get(xTextFieldId);
+            TextField focusedTextField = xCordsTextFields.get(focusedTextFieldId);
 
             focusedTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-                ArrayList<Node> currentPoint = allPoints.get(xTextFieldId);
-                double tmpX = startXCoords.get(xTextFieldId);
+                ArrayList<Node> currentPoint = allPoints.get(focusedTextFieldId);
+                double tmpX = startXCoords.get(focusedTextFieldId);
 
                 if(!newValue.matches("\\d*")){
                     focusedTextField.setText(newValue.replaceAll("[^\\d]", ""));
@@ -169,7 +168,7 @@ public class Controller implements Initializable {
                             current.setTranslateX(imageWidth - tmpX);
                         }
                         else{
-                            current.setTranslateX(Double.parseDouble(xCordsTextFields.get(xTextFieldId).getText()) - tmpX);
+                            current.setTranslateX(Double.parseDouble(xCordsTextFields.get(focusedTextFieldId).getText()) - tmpX);
                         }
                     } catch (NumberFormatException ex){}
                 }
@@ -177,13 +176,13 @@ public class Controller implements Initializable {
             validateInputs(focusedTextField, imageWidth);
         });
 
-        textField2.setOnMouseClicked(event -> {
-            yTextFieldId = Integer.parseInt(((TextField)(event.getSource())).getId());
-            TextField focusedTextField = yCordsTextFields.get(yTextFieldId);
+        yCoordTextField.setOnMouseClicked(event -> {
+            focusedTextFieldId = Integer.parseInt(((TextField)(event.getSource())).getId());
+            TextField focusedTextField = yCordsTextFields.get(focusedTextFieldId);
 
             focusedTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-                ArrayList<Node> currentPoint = allPoints.get(yTextFieldId);
-                double tmpY = startYCoords.get(yTextFieldId);
+                ArrayList<Node> currentPoint = allPoints.get(focusedTextFieldId);
+                double tmpY = startYCoords.get(focusedTextFieldId);
 
                 if(!newValue.matches("\\d*")){
                     focusedTextField.setText(newValue.replaceAll("[^\\d]", ""));
@@ -197,7 +196,7 @@ public class Controller implements Initializable {
                             current.setTranslateY(imageHeight - tmpY);
                         }
                         else{
-                            current.setTranslateY(Double.parseDouble(yCordsTextFields.get(yTextFieldId).getText()) - tmpY);
+                            current.setTranslateY(Double.parseDouble(yCordsTextFields.get(focusedTextFieldId).getText()) - tmpY);
                         }
                     } catch (NumberFormatException ex){}
                 }
@@ -211,13 +210,13 @@ public class Controller implements Initializable {
             for(int i = 0; i < mainPanes.size(); i++){
                 mainPanes.get(i).getChildren().remove(allPoints.get(clickedId).get(i));
             }
-            pointsListView.getItems().remove(vb);
+            pointsListView.getItems().remove(vbPoints);
         });
 
         for(Node tmp : currentPoints){
-            tmp.setOnMousePressed(event -> circleOnMousePressedEventHandler(event));
-            tmp.setOnMouseDragged(event -> drag(event));
-            tmp.setOnMouseReleased(event -> dragReleased(event));
+            tmp.setOnMousePressed(event -> pointOnMousePressed(event));
+            tmp.setOnMouseDragged(event -> dragPoint(event));
+            tmp.setOnMouseReleased(event -> dragPointReleased(event));
         }
     }
 
@@ -238,7 +237,22 @@ public class Controller implements Initializable {
         });
     }
 
-    private void drag(MouseEvent event) {
+    private void pointOnMousePressed(MouseEvent event){
+        orgSceneX = event.getSceneX();
+        orgSceneY = event.getSceneY();
+
+        clickedPointId = Integer.parseInt(((Circle)(event.getSource())).getId());
+
+        clickedPointList.addAll(allPoints.get(clickedPointId));
+
+        currentStartX = startXCoords.get(clickedPointId);
+        currentStartY = startYCoords.get(clickedPointId);
+
+        orgTranslateX = clickedPointList.get(0).getTranslateX();
+        orgTranslateY = clickedPointList.get(0).getTranslateY();
+    }
+
+    private void dragPoint(MouseEvent event) {
         offsetX = event.getSceneX() - orgSceneX;
         offsetY = event.getSceneY() - orgSceneY;
 
@@ -258,55 +272,23 @@ public class Controller implements Initializable {
         for(Node tmp : clickedPointList){
             tmp.setTranslateX(newTranslateX);
             tmp.setTranslateY(newTranslateY);
+
+            TextField tempXCoords = xCordsTextFields.get(clickedPointId);
+            TextField tempYCoords = yCordsTextFields.get(clickedPointId);
+
+            double startX = startXCoords.get(clickedPointId);
+            double startY = startYCoords.get(clickedPointId);
+
+            double xNewPosition = startX + newTranslateX;
+            double yNewPosition = startY + newTranslateY;
+
+            tempXCoords.setText(String.valueOf(xNewPosition).split("\\.")[0]);
+            tempYCoords.setText(String.valueOf(yNewPosition).split("\\.")[0]);
         }
     }
 
-    private void dragReleased(MouseEvent event){
-        offsetX = event.getSceneX() - orgSceneX;
-        offsetY = event.getSceneY() - orgSceneY;
-
-        TextField tempX = xCordsTextFields.get(currentPointId);
-        TextField tempY = yCordsTextFields.get(currentPointId);
-
-        double startX = startXCoords.get(currentPointId);
-        double startY = startYCoords.get(currentPointId);
-
-        double xNewPosition = startX + newTranslateX;
-        double yNewPosition = startY + newTranslateY;
-
-        tempX.setText(String.valueOf(xNewPosition).split("\\.")[0]);
-        tempY.setText(String.valueOf(yNewPosition).split("\\.")[0]);
-
+    private void dragPointReleased(MouseEvent event){
         clickedPointList.clear();
-    }
-
-    private void circleOnMousePressedEventHandler(MouseEvent event){
-        orgSceneX = event.getSceneX();
-        orgSceneY = event.getSceneY();
-
-        currentPointId = Integer.parseInt(((Circle)(event.getSource())).getId());
-
-        clickedPointList.addAll(allPoints.get(currentPointId));
-
-        currentStartX = startXCoords.get(currentPointId);
-        currentStartY = startYCoords.get(currentPointId);
-
-        orgTranslateX = clickedPointList.get(0).getTranslateX();
-        orgTranslateY = clickedPointList.get(0).getTranslateY();
-    }
-
-    private Color generateColor(){
-        Random rand = new Random();
-
-        double r = rand.nextDouble();
-        double g = rand.nextDouble();
-        double b = rand.nextDouble();
-
-        Color generatedColor = new Color(r, g, b, 1);
-
-        generatedColor.brighter();
-
-        return generatedColor;
     }
 
     @FXML
@@ -326,5 +308,19 @@ public class Controller implements Initializable {
         clickedPointList.clear();
         pointsListView.getItems().clear();
         pointIds = 0;
+    }
+
+    private Color generateColor(){
+        Random rand = new Random();
+
+        double r = rand.nextDouble();
+        double g = rand.nextDouble();
+        double b = rand.nextDouble();
+
+        Color generatedColor = new Color(r, g, b, 1);
+
+        generatedColor.brighter();
+
+        return generatedColor;
     }
 }

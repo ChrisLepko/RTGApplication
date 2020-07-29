@@ -1,4 +1,4 @@
-package sample;
+package home;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -10,12 +10,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("../fxml/rtgApp.fxml"));
         primaryStage.setResizable(false);
         primaryStage.setTitle("RTGApplication");
 
         Scene scene = new Scene(root, 1280, 720);
-        scene.getStylesheets().add("sample/styles.css");
+        scene.getStylesheets().add("styles/styles.css");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
